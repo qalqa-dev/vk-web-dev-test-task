@@ -10,11 +10,25 @@ import {
   Title,
   ToolButton,
 } from '@vkontakte/vkui';
+import { observer } from 'mobx-react-lite';
+import { useContext, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Rating } from '../components/Rating/Rating';
+import { StoreContext } from '../stores/RootStore';
 
-export const MovieDetails = () => {
+export const MovieDetails = observer(() => {
   const { id } = useParams();
+
+  const store = useContext(StoreContext);
+
+  useEffect(() => {
+    store.getMovieById(id!);
+  }, [id, store]);
+
+  const movie = store.currentMovie;
+
+  if (store.loading) return <div>Загрузка...</div>;
+  if (!movie) return <div>Фильм не найден</div>;
 
   return (
     <Group style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -34,7 +48,7 @@ export const MovieDetails = () => {
             <Paragraph>{movie.year}</Paragraph>
 
             <Headline>Жанр</Headline>
-            <Paragraph>{movie.genres.join(', ')}</Paragraph>
+            <Paragraph>{movie.genres?.join(', ')}</Paragraph>
 
             <Headline>Режиссер</Headline>
             <Paragraph>{movie.director}</Paragraph>
@@ -52,4 +66,4 @@ export const MovieDetails = () => {
       </Flex>
     </Group>
   );
-};
+});

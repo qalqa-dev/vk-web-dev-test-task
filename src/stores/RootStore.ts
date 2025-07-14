@@ -8,6 +8,7 @@ class RootStore {
   apiToken = '';
   movies: Movie[] = [];
   loading = false;
+  currentMovie: Movie | null = null;
 
   constructor(initialToken: string = '') {
     makeObservable(this, {
@@ -18,6 +19,7 @@ class RootStore {
       setApiToken: action,
       getMovies: flow,
       initialize: flow,
+      currentMovie: observable,
     });
 
     if (initialToken) {
@@ -32,8 +34,7 @@ class RootStore {
   *getMovies(): Generator {
     try {
       this.loading = true;
-
-      const movies = yield Api.get('films');
+      const movies = yield Api.get('movie');
 
       runInAction(() => {
         this.movies = movies;
@@ -48,14 +49,33 @@ class RootStore {
     }
   }
 
-  getMovieById = (id: string) => {
-    const localMovie = this.movies.find((movie) => movie.id.toString() === id);
+  *getMovieById(id: string): Generator {
+    try {
+      const localMovie = this.movies.find(
+        (movie) => movie.id.toString() === id,
+      );
 
-    if (localMovie) {
-      return localMovie;
+      if (localMovie) {
+        runInAction(() => {
+          this.currentMovie = localMovie;
+        });
+        return;
+      }
+
+      this.loading = true;
+      const movie = yield Api.getById<Movie>('films', id);
+
+      runInAction(() => {
+        this.currentMovie = movie;
+        this.loading = false;
+      });
+    } catch {
+      runInAction(() => {
+        this.loading = false;
+        this.currentMovie = null;
+      });
     }
-    return Api.getById('films', id);
-  };
+  }
 
   clearMovies = () => {
     this.movies = [];
