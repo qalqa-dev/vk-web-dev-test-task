@@ -1,14 +1,14 @@
 import { action, flow, makeObservable, observable, runInAction } from 'mobx';
 import { createContext } from 'react';
 import { Api } from '../api/api';
-import type { Movie } from '../types/Movie';
+import type { MovieDoc } from '../types/Response';
 
 class RootStore {
   initialized = false;
   apiToken = '';
-  movies: Movie[] = [];
+  movies: MovieDoc[] = [];
   loading = false;
-  currentMovie: Movie | null = null;
+  currentMovie: MovieDoc | null = null;
 
   constructor(initialToken: string = '') {
     makeObservable(this, {
@@ -37,9 +37,9 @@ class RootStore {
       const movies = yield Api.get('movie');
 
       runInAction(() => {
-        this.movies = movies;
+        this.movies = movies.docs;
         this.loading = false;
-        console.log('Movies loaded:', movies);
+        console.log('Movies loaded:', this.movies);
       });
     } catch (error) {
       runInAction(() => {
@@ -49,33 +49,38 @@ class RootStore {
     }
   }
 
-  *getMovieById(id: string): Generator {
-    try {
-      const localMovie = this.movies.find(
-        (movie) => movie.id.toString() === id,
-      );
-
-      if (localMovie) {
-        runInAction(() => {
-          this.currentMovie = localMovie;
-        });
-        return;
-      }
-
-      this.loading = true;
-      const movie = yield Api.getById<Movie>('films', id);
-
-      runInAction(() => {
-        this.currentMovie = movie;
-        this.loading = false;
-      });
-    } catch {
-      runInAction(() => {
-        this.loading = false;
-        this.currentMovie = null;
-      });
-    }
+  getMovieById(id: number): MovieDoc | null {
+    const currentMovie = this.movies.find((movie) => movie.id === id);
+    console.log('Movie loaded from cache:', currentMovie);
+    return currentMovie || null;
   }
+
+  // *getMovieById(id: number): Generator {
+  //   try {
+  //     const localMovie = this.movies.find((movie) => movie.id === id);
+
+  //     if (localMovie) {
+  //       runInAction(() => {
+  //         this.currentMovie = localMovie;
+  //         console.log('Movie loaded from cache:', this.currentMovie);
+  //       });
+  //       return;
+  //     }
+
+  //     this.loading = true;
+  //     const movie = yield Api.getById<MovieDoc>('films', id);
+
+  //     runInAction(() => {
+  //       this.currentMovie = movie.docs[0];
+  //       this.loading = false;
+  //     });
+  //   } catch {
+  //     runInAction(() => {
+  //       this.loading = false;
+  //       this.currentMovie = null;
+  //     });
+  //   }
+  // }
 
   clearMovies = () => {
     this.movies = [];

@@ -8,6 +8,8 @@ import { StoreContext } from '../stores/RootStore';
 export const Main = observer(() => {
   const store = useContext(StoreContext);
 
+  const movies = store.movies;
+
   const groups = useMemo(
     () => [
       {
@@ -34,12 +36,13 @@ export const Main = observer(() => {
     <Group header={<Header size="xl">Главная</Header>}>
       <Filter chipGroups={groups} />
       <CardGrid>
-        {store.movies.map((movie) => (
+        {movies.map((movie) => (
           <MovieCard
             key={movie.id}
             id={movie.id}
-            imgUrl={movie.imgUrl}
-            title={movie.title}
+            poster={movie.poster}
+            name={movie.name}
+            alternativeName={movie.alternativeName}
             year={movie.year}
             rating={movie.rating}
           />

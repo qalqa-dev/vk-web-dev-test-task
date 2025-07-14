@@ -1,7 +1,8 @@
 export type Movie = {
   id: number;
   imgUrl?: string;
-  title: string;
+  name: string | null;
+  alternativeName: string | null;
   year: number;
   rating: number;
   composer?: string;

@@ -56,7 +56,7 @@ class ApiClient {
 
   async getById<T>(
     url: string,
-    id: string,
+    id: number,
     options?: RequestOptions,
   ): Promise<T> {
     return this.handleRequest<T>(`${url}/${id}`, options);

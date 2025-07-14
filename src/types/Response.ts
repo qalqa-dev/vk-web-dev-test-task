@@ -16,7 +16,7 @@ interface Poster {
   previewUrl: string;
 }
 
-interface Rating {
+export interface RatingType {
   kp: number;
   imdb: number;
   filmCritics: number;
@@ -32,7 +32,7 @@ interface Votes {
   await: number;
 }
 
-interface MovieDoc {
+export interface MovieDoc {
   id: number;
   name: string | null;
   alternativeName: string | null;
@@ -43,7 +43,7 @@ interface MovieDoc {
   description: string | null;
   shortDescription: string | null;
   status: string | null;
-  rating: Rating;
+  rating: RatingType;
   votes: Votes;
   movieLength: number | null;
   totalSeriesLength: number | null;
