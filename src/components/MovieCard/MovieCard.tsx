@@ -1,27 +1,13 @@
-import { Icon24StarsOutline, Icon28StarsOutline } from '@vkontakte/icons';
-import {
-  AdaptiveIconRenderer,
-  Card,
-  EllipsisText,
-  Headline,
-} from '@vkontakte/vkui';
-import clsx from 'clsx';
+import { Card, EllipsisText, Headline } from '@vkontakte/vkui';
+import { useNavigate } from 'react-router-dom';
 import type { Movie } from '../../types/Movie';
+import { Rating } from '../Rating/Rating';
 import styles from './MovieCard.module.scss';
-export const MovieCard = ({
-  imgUrl,
-  title,
-  year,
-  rating,
-}: Omit<Movie, 'id'>) => {
-  const ratingCondition = {
-    [styles['rating--low']]: rating < 5,
-    [styles['rating--mid']]: rating >= 5 && rating < 8,
-    [styles['rating--high']]: rating >= 8,
-  };
+export const MovieCard = ({ id, imgUrl, title, year, rating }: Movie) => {
+  const navigate = useNavigate();
   return (
     <>
-      <Card>
+      <Card className={styles.card} onClick={() => navigate(`/movies/${id}`)}>
         <img src={imgUrl} width={'100%'} alt="img" />
         <div className={styles.content}>
           <Headline level="1">
@@ -31,13 +17,7 @@ export const MovieCard = ({
             <Headline level="2" className={styles.year}>
               {year}
             </Headline>
-            <div className={clsx(styles.rating, ratingCondition)}>
-              <AdaptiveIconRenderer
-                IconCompact={Icon24StarsOutline}
-                IconRegular={Icon28StarsOutline}
-              />
-              <span>{rating}</span>
-            </div>
+            <Rating rating={rating}></Rating>
           </div>
         </div>
       </Card>

@@ -10,7 +10,7 @@ root.render(
   <ConfigProvider>
     <AdaptivityProvider>
       <StoreContext.Provider value={rootStore}>
-        <App />
+        <App></App>
       </StoreContext.Provider>
     </AdaptivityProvider>
   </ConfigProvider>,

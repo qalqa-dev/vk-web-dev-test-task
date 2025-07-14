@@ -1,11 +1,10 @@
 import { CardGrid, Group } from '@vkontakte/vkui';
 import { useMemo } from 'react';
-import type { Movie } from '../../types/Movie';
-import { Filter } from '../Filter/Filter';
-import { MovieCard } from '../MovieCard/MovieCard';
-import styles from './MovieList.module.scss';
+import { Filter } from '../components/Filter/Filter';
+import { MovieCard } from '../components/MovieCard/MovieCard';
+import type { Movie } from '../types/Movie';
 
-export const MovieList = ({ movies }: { movies: Movie[] }) => {
+export const Main = ({ movies }: { movies: Movie[] }) => {
   const groups = useMemo(
     () => [
       {
@@ -29,12 +28,13 @@ export const MovieList = ({ movies }: { movies: Movie[] }) => {
     [],
   );
   return (
-    <Group className={styles.list}>
+    <Group>
       <Filter chipGroups={groups} />
       <CardGrid>
         {movies.map((movie) => (
           <MovieCard
             key={movie.id}
+            id={movie.id}
             imgUrl={movie.imgUrl}
             title={movie.title}
             year={movie.year}

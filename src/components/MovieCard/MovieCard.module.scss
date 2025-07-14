@@ -1,3 +1,7 @@
+.card{
+  cursor: pointer;
+}
+
 img{
   border-radius: 4px;
 }
@@ -16,24 +20,3 @@ img{
 }
 
 
-
-.rating{
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2px 4px;
-  border-radius: 4px;
-
-  &--low{
-    background-color: var(--vkui--color_icon_negative);
-    color: var(--vkui--color_text_contrast);
-  }
-  &--mid{
-    background-color: var(--vkui--color_icon_warning);
-  }
-  &--high{
-    background-color: var(--vkui--color_icon_positive);
-    color: var(--vkui--color_text_contrast);
-  }
-
-}

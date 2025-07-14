@@ -8,7 +8,9 @@ import {
   View,
 } from '@vkontakte/vkui';
 import '@vkontakte/vkui/dist/vkui.css';
-import { MovieList } from './components/MovieList/MovieList';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Main } from './pages/Main';
+import { MovieDetails } from './pages/MovieDetails';
 
 const App = () => {
   const platform = usePlatform();
@@ -49,7 +51,12 @@ const App = () => {
           <View activePanel="main">
             <Panel id="main">
               <PanelHeader>VKUI</PanelHeader>
-              <MovieList movies={mockData}></MovieList>
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Main movies={mockData} />} />
+                  <Route path="/movies/:id" element={<MovieDetails />}></Route>
+                </Routes>
+              </BrowserRouter>
             </Panel>
           </View>
         </SplitCol>
