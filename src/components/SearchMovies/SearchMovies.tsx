@@ -1,21 +1,28 @@
-import { Icon16Clear, Icon24Search } from '@vkontakte/icons';
+import { Icon24Search } from '@vkontakte/icons';
 import { FormItem, IconButton, Input } from '@vkontakte/vkui';
+import { useContext, useState } from 'react';
+import { StoreContext } from '../../stores/RootStore';
 
 export const SearchMovies = () => {
+  const { filters, getMoviesWithQuery } = useContext(StoreContext);
+
+  const [inputValue, setInputValue] = useState<string>('');
+
   return (
     <>
       <FormItem style={{ flexGrow: 1 }}>
         <Input
           id="example"
           placeholder="Введите название фильма"
-          before={<Icon24Search />}
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
           after={
             <IconButton
-              hoverMode="opacity"
-              label="Очистить поле"
-              // onClick={clear}
+              onClick={() => {
+                getMoviesWithQuery(inputValue, 1, 10, filters);
+              }}
             >
-              <Icon16Clear />
+              <Icon24Search />
             </IconButton>
           }
           type="text"

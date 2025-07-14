@@ -1,5 +1,6 @@
-interface Genre {
+export interface Genre {
   name: string;
+  slug: string;
 }
 
 interface Country {
@@ -22,6 +23,11 @@ export interface RatingType {
   filmCritics: number;
   russianFilmCritics: number;
   await: number;
+}
+
+export interface rangeType {
+  start: number;
+  end: number;
 }
 
 interface Votes {

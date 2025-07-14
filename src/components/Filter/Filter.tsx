@@ -6,19 +6,39 @@ import {
   FormItem,
   Slider,
   ToolButton,
-  type ChipOption,
 } from '@vkontakte/vkui';
 import clsx from 'clsx';
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { StoreContext } from '../../stores/RootStore';
 import { SearchMovies } from '../SearchMovies/SearchMovies';
 import styles from './Filter.module.scss';
 
-export const Filter = ({ chipGroups }: { chipGroups: ChipOption[] }) => {
-  const { minRating, maxRating } = { minRating: 0, maxRating: 10 };
-  const { minYear, maxYear } = {
-    minYear: 1990,
-    maxYear: new Date().getFullYear(),
-  };
+export const Filter = () => {
+  const store = useContext(StoreContext);
+
+  const ratingRangeConst = [0, 10];
+  const yearRangeConst = [1990, new Date().getFullYear()];
+
+  const [ratingRange, setRatingRange] = useState<{
+    start: number;
+    end: number;
+  }>({
+    start: ratingRangeConst[0],
+    end: ratingRangeConst[1],
+  });
+
+  const [yearRange, setYearRange] = useState<{
+    start: number;
+    end: number;
+  }>({
+    start: yearRangeConst[0],
+    end: yearRangeConst[1],
+  });
+
+  useEffect(() => {
+    store.setRating(ratingRange);
+    store.setYear(yearRange);
+  }, [ratingRange, store, yearRange]);
 
   const [isExpanded, setIsExpanded] = useState(false);
   return (
@@ -43,26 +63,43 @@ export const Filter = ({ chipGroups }: { chipGroups: ChipOption[] }) => {
         })}
       >
         <FormItem top="Диапазон рейтинга">
+          {ratingRange.start} - {ratingRange.end}
           <Slider
             withTooltip
             multiple
             step={1}
-            min={minRating}
-            max={maxRating}
-            defaultValue={[minRating, maxRating]}
+            min={ratingRangeConst[0]}
+            max={ratingRangeConst[1]}
+            defaultValue={[ratingRange.start, ratingRange.end]}
+            value={[ratingRange.start, ratingRange.end]}
+            onChange={(value) => {
+              console.log(value);
+              setRatingRange({
+                start: value[0],
+                end: value[1],
+              });
+            }}
             getAriaValueText={(value, index) =>
               index === 0 ? `Start thumb is ${value}` : `End thumb is ${value}`
             }
           />
         </FormItem>
         <FormItem top="Диапазон дат">
+          {yearRange.start} - {yearRange.end}
           <Slider
             withTooltip
             multiple
             step={1}
-            min={minYear}
-            max={maxYear}
-            defaultValue={[minYear, maxYear]}
+            min={yearRangeConst[0]}
+            max={yearRangeConst[1]}
+            defaultValue={[yearRange.start, yearRange.end]}
+            value={[yearRange.start, yearRange.end]}
+            onChange={(value) => {
+              setYearRange({
+                start: value[0],
+                end: value[1],
+              });
+            }}
             getAriaValueText={(value, index) =>
               index === 0 ? `Start thumb is ${value}` : `End thumb is ${value}`
             }
@@ -71,12 +108,16 @@ export const Filter = ({ chipGroups }: { chipGroups: ChipOption[] }) => {
         <FormItem top="Выберите жанры" className={styles.chips}>
           <ChipsSelect
             id="groups"
-            options={chipGroups}
+            options={store.filters.genres?.map((genre) => ({
+              label: genre.name,
+              name: genre.slug,
+            }))}
             placeholder="Не выбраны"
             emptyText="Совсем ничего не найдено"
             selectedBehavior="hide"
             closeAfterSelect={false}
             allowClearButton={true}
+            onChange={store.setGenres}
           />
         </FormItem>
       </div>

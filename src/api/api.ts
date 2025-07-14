@@ -61,6 +61,12 @@ class ApiClient {
   ): Promise<T> {
     return this.handleRequest<T>(`${url}/${id}`, options);
   }
+
+  async getAllPossibleValuesByField<T>(url: string, field: string): Promise<T> {
+    return this.handleRequest<T>(
+      `${url}/possible-values-by-field?field=${field}`,
+    );
+  }
 }
 
 export const Api = new ApiClient({

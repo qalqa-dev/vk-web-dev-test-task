@@ -31,7 +31,6 @@ export const MovieDetails = observer(() => {
     }
   }, [id, store]);
 
-  if (store.loading) return <div>Загрузка...</div>;
   if (!movie) return <div>Фильм не найден</div>;
 
   return (
@@ -60,7 +59,7 @@ export const MovieDetails = observer(() => {
 
             <Headline>Жанр</Headline>
             <Paragraph>
-              {movie.genres.map(({ name }) => name).join(', ')}
+              {movie.genres.map(({ name: label }) => label).join(', ')}
             </Paragraph>
 
             {/* <Headline>Режиссер</Headline>

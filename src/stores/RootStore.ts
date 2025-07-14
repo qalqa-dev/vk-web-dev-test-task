@@ -1,14 +1,15 @@
 import { action, flow, makeObservable, observable, runInAction } from 'mobx';
 import { createContext } from 'react';
 import { Api } from '../api/api';
-import type { MovieDoc } from '../types/Response';
+import type { Genre, MovieDoc, rangeType } from '../types/Response';
+import type { FilterType } from '../types/RootStore';
 
 class RootStore {
   initialized = false;
   apiToken = '';
   movies: MovieDoc[] = [];
   loading = false;
-  currentMovie: MovieDoc | null = null;
+  filters: FilterType = {};
 
   constructor(initialToken: string = '') {
     makeObservable(this, {
@@ -17,9 +18,11 @@ class RootStore {
       loading: observable,
       initialized: observable,
       setApiToken: action,
+      filters: observable,
+      getAllGenres: action,
       getMovies: flow,
       initialize: flow,
-      currentMovie: observable,
+      getMoviesWithQuery: flow,
     });
 
     if (initialToken) {
@@ -34,7 +37,7 @@ class RootStore {
   *getMovies(): Generator {
     try {
       this.loading = true;
-      const movies = yield Api.get('movie');
+      const movies = yield Api.get('v1.4/movie');
 
       runInAction(() => {
         this.movies = movies.docs;
@@ -55,52 +58,96 @@ class RootStore {
     return currentMovie || null;
   }
 
-  // *getMovieById(id: number): Generator {
-  //   try {
-  //     const localMovie = this.movies.find((movie) => movie.id === id);
+  setGenres = (genres: Genre[]) => {
+    this.filters.genres = genres;
+    console.log('Filters updated:', this.filters);
+  };
 
-  //     if (localMovie) {
-  //       runInAction(() => {
-  //         this.currentMovie = localMovie;
-  //         console.log('Movie loaded from cache:', this.currentMovie);
-  //       });
-  //       return;
-  //     }
+  setYear = (year: rangeType) => {
+    this.filters.year = year;
+  };
 
-  //     this.loading = true;
-  //     const movie = yield Api.getById<MovieDoc>('films', id);
+  setRating = (rating: rangeType) => {
+    this.filters.rating = rating;
+  };
 
-  //     runInAction(() => {
-  //       this.currentMovie = movie.docs[0];
-  //       this.loading = false;
-  //     });
-  //   } catch {
-  //     runInAction(() => {
-  //       this.loading = false;
-  //       this.currentMovie = null;
-  //     });
-  //   }
-  // }
+  *getMoviesWithQuery(
+    query?: string,
+    page: number = 1,
+    limit: number = 10,
+    filters?: FilterType,
+  ) {
+    try {
+      this.loading = true;
+      const filterParams = {
+        genres: filters?.genres,
+        year: filters?.year,
+        rating: filters?.rating,
+      };
+
+      const queryParams = new URLSearchParams({
+        query: query || '',
+        page: page.toString(),
+        limit: limit.toString(),
+        'releaseYears.start': JSON.stringify(filterParams.year?.start),
+        'releaseYears.end': JSON.stringify(filterParams.year?.end),
+        'rating.kp':
+          JSON.stringify(filterParams.rating?.start) +
+          '-' +
+          JSON.stringify(filterParams.rating?.end),
+        ...(filterParams.genres?.length && {
+          'genres.name': filterParams.genres.map((e) => e.name).join(','),
+        }),
+      })
+        .toString()
+        .replace(/%2C/g, ',');
+
+      const movies: { docs: MovieDoc[] } = yield Api.get(
+        `v1.4/movie/search?${queryParams}`,
+      );
+
+      this.loading = false;
+      this.movies = movies.docs;
+      console.log('Movies loaded:', this.movies);
+    } catch (error) {
+      console.error('Error fetching movies:', error);
+      this.loading = false;
+    }
+  }
+
+  getAllGenres = async () => {
+    try {
+      const genres: Genre[] = await Api.getAllPossibleValuesByField(
+        'v1/movie',
+        'genres.name',
+      );
+      this.filters.genres = genres;
+      console.log('Genres loaded:', genres);
+    } catch (error) {
+      console.error('Error fetching genres:', error);
+    }
+  };
 
   clearMovies = () => {
     this.movies = [];
   };
 
-  initialize = flow(function* (this: RootStore) {
-    if (this.initialized) return;
+  initialize = flow(
+    function* (this: RootStore) {
+      if (this.initialized) return;
 
-    try {
-      if (this.apiToken) {
-        yield this.getMovies();
-      }
+      try {
+        if (this.apiToken) {
+          yield this.getMovies();
+        }
+        yield this.getAllGenres();
 
-      runInAction(() => {
         this.initialized = true;
-      });
-    } catch (error) {
-      console.error('Initialization failed:', error);
-    }
-  });
+      } catch (error) {
+        console.error('Initialization failed:', error);
+      }
+    }.bind(this),
+  );
 }
 
 export const rootStore = new RootStore(import.meta.env.VITE_API_TOKEN);
