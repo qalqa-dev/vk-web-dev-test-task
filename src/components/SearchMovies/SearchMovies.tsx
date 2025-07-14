@@ -7,6 +7,7 @@ export const SearchMovies = () => {
       <FormItem style={{ flexGrow: 1 }}>
         <Input
           id="example"
+          placeholder="Введите название фильма"
           before={<Icon24Search />}
           after={
             <IconButton
@@ -18,7 +19,6 @@ export const SearchMovies = () => {
             </IconButton>
           }
           type="text"
-          defaultValue="Lorem ipsum dolor sit amet"
         />
       </FormItem>
     </>

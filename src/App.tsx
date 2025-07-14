@@ -9,6 +9,8 @@ import {
 } from '@vkontakte/vkui';
 import '@vkontakte/vkui/dist/vkui.css';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Navbar } from './components/Navbar/Navbar';
+import { Favorites } from './pages/Favorites';
 import { Main } from './pages/Main';
 import { MovieDetails } from './pages/MovieDetails';
 
@@ -43,25 +45,28 @@ const App = () => {
   ];
 
   return (
-    <AppRoot>
-      <SplitLayout
-        header={platform !== 'vkcom' && <PanelHeader delimiter="none" />}
-      >
-        <SplitCol autoSpaced>
-          <View activePanel="main">
-            <Panel id="main">
-              <PanelHeader>VKUI</PanelHeader>
-              <BrowserRouter>
+    <BrowserRouter>
+      <AppRoot>
+        <SplitLayout
+          header={platform !== 'vkcom' && <PanelHeader delimiter="none" />}
+        >
+          <SplitCol autoSpaced>
+            <View activePanel="main">
+              <Panel id="main">
+                <PanelHeader>
+                  <Navbar />
+                </PanelHeader>
                 <Routes>
                   <Route path="/" element={<Main movies={mockData} />} />
-                  <Route path="/movies/:id" element={<MovieDetails />}></Route>
+                  <Route path="/movies/:id" element={<MovieDetails />} />
+                  <Route path="/favorites" element={<Favorites />} />
                 </Routes>
-              </BrowserRouter>
-            </Panel>
-          </View>
-        </SplitCol>
-      </SplitLayout>
-    </AppRoot>
+              </Panel>
+            </View>
+          </SplitCol>
+        </SplitLayout>
+      </AppRoot>
+    </BrowserRouter>
   );
 };
 

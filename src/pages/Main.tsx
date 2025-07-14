@@ -1,4 +1,4 @@
-import { CardGrid, Group } from '@vkontakte/vkui';
+import { CardGrid, Group, Header } from '@vkontakte/vkui';
 import { useMemo } from 'react';
 import { Filter } from '../components/Filter/Filter';
 import { MovieCard } from '../components/MovieCard/MovieCard';
@@ -28,7 +28,7 @@ export const Main = ({ movies }: { movies: Movie[] }) => {
     [],
   );
   return (
-    <Group>
+    <Group header={<Header size="xl">Главная</Header>}>
       <Filter chipGroups={groups} />
       <CardGrid>
         {movies.map((movie) => (

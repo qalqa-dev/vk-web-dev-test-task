@@ -4,7 +4,6 @@ import {
   Div,
   Flex,
   FormItem,
-  Group,
   Slider,
   ToolButton,
   type ChipOption,
@@ -24,23 +23,21 @@ export const Filter = ({ chipGroups }: { chipGroups: ChipOption[] }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   return (
     <>
-      <Group>
-        <Flex align="center" justify="start" style={{ width: '100%' }}>
-          <Div>
-            <ToolButton
-              IconCompact={Icon20FilterOutline}
-              IconRegular={Icon24Filter}
-              mode={'secondary'}
-              onClick={() => {
-                setIsExpanded(!isExpanded);
-              }}
-            />
-          </Div>
-          <SearchMovies />
-        </Flex>
-      </Group>
+      <Flex align="center" justify="start" style={{ width: '100%' }}>
+        <Div>
+          <ToolButton
+            IconCompact={Icon20FilterOutline}
+            IconRegular={Icon24Filter}
+            mode={'secondary'}
+            onClick={() => {
+              setIsExpanded(!isExpanded);
+            }}
+          />
+        </Div>
+        <SearchMovies />
+      </Flex>
 
-      <Group
+      <div
         className={clsx(styles['filter-line'], {
           [styles.active]: isExpanded,
         })}
@@ -82,7 +79,7 @@ export const Filter = ({ chipGroups }: { chipGroups: ChipOption[] }) => {
             allowClearButton={true}
           />
         </FormItem>
-      </Group>
+      </div>
     </>
   );
 };
