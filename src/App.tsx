@@ -57,7 +57,7 @@ const App = () => {
                   <Navbar />
                 </PanelHeader>
                 <Routes>
-                  <Route path="/" element={<Main movies={mockData} />} />
+                  <Route path="/" element={<Main />} />
                   <Route path="/movies/:id" element={<MovieDetails />} />
                   <Route path="/favorites" element={<Favorites />} />
                 </Routes>

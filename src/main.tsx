@@ -6,6 +6,9 @@ import { rootStore, StoreContext } from './stores/RootStore.ts';
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
+
+rootStore.initialize();
+
 root.render(
   <ConfigProvider>
     <AdaptivityProvider>

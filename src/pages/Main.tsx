@@ -1,10 +1,13 @@
 import { CardGrid, Group, Header } from '@vkontakte/vkui';
-import { useMemo } from 'react';
+import { observer } from 'mobx-react-lite';
+import { useContext, useMemo } from 'react';
 import { Filter } from '../components/Filter/Filter';
 import { MovieCard } from '../components/MovieCard/MovieCard';
-import type { Movie } from '../types/Movie';
+import { StoreContext } from '../stores/RootStore';
 
-export const Main = ({ movies }: { movies: Movie[] }) => {
+export const Main = observer(() => {
+  const store = useContext(StoreContext);
+
   const groups = useMemo(
     () => [
       {
@@ -31,7 +34,7 @@ export const Main = ({ movies }: { movies: Movie[] }) => {
     <Group header={<Header size="xl">Главная</Header>}>
       <Filter chipGroups={groups} />
       <CardGrid>
-        {movies.map((movie) => (
+        {store.movies.map((movie) => (
           <MovieCard
             key={movie.id}
             id={movie.id}
@@ -44,4 +47,4 @@ export const Main = ({ movies }: { movies: Movie[] }) => {
       </CardGrid>
     </Group>
   );
-};
+});
