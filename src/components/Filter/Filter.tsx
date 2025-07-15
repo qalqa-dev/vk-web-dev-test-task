@@ -55,7 +55,11 @@ export const Filter = observer(() => {
   const [isExpanded, setIsExpanded] = useState(false);
   return (
     <>
-      <Flex align="center" justify="start" style={{ width: '100%' }}>
+      <Flex
+        align="center"
+        justify="start"
+        className={styles['filter__container']}
+      >
         <Div>
           <ToolButton
             IconCompact={Icon20FilterOutline}

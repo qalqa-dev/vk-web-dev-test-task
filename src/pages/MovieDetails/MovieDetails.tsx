@@ -13,9 +13,11 @@ import {
 import { observer } from 'mobx-react-lite';
 import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Rating } from '../components/Rating/Rating';
-import { StoreContext } from '../stores/RootStore';
-import type { Movie } from '../types/Movie';
+import { NoPoster } from '../../components/NoPoster/NoPoster';
+import { Rating } from '../../components/Rating/Rating';
+import { StoreContext } from '../../stores/RootStore';
+import type { Movie } from '../../types/Movie';
+import styles from './MovieDetails.module.scss';
 
 export const MovieDetails = observer(() => {
   const { id } = useParams();
@@ -42,16 +44,17 @@ export const MovieDetails = observer(() => {
   };
 
   return (
-    <Group style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <Flex justify="center">
-        <img
-          width={218}
-          height={318}
-          src={
-            movie.poster?.url || movie.poster?.previewUrl || '/no-poster.webp'
-          }
-          alt={(movie.name || movie.alternativeName) + 'image'}
-        />
+    <Group className={styles.card}>
+      <div className={styles.flex}>
+        {movie.poster?.url || movie.poster?.previewUrl ? (
+          <img
+            className={styles['movie-poster']}
+            src={movie.poster?.url || movie.poster?.previewUrl}
+            alt={(movie.name || movie.alternativeName) + 'image'}
+          />
+        ) : (
+          <NoPoster />
+        )}
         <Div>
           <Flex gap="m">
             <DisplayTitle style={{ fontSize: '32px' }} level="1">
@@ -67,7 +70,9 @@ export const MovieDetails = observer(() => {
 
             <Headline>Жанр</Headline>
             <Paragraph>
-              {movie.genres.map(({ name: label }) => label).join(', ')}
+              {movie.genres
+                ? movie.genres.map(({ name: label }) => label).join(', ')
+                : 'Жанр не определен'}
             </Paragraph>
           </SimpleGrid>
           <div style={{ padding: '10px 0' }}>
@@ -84,7 +89,7 @@ export const MovieDetails = observer(() => {
               : 'Добавить в понравившиеся'}
           </ToolButton>
         </Div>
-      </Flex>
+      </div>
     </Group>
   );
 });

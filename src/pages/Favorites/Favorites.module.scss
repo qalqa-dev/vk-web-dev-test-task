@@ -1,0 +1,11 @@
+.movies-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(218px, 1fr));
+  gap: 20px;
+  max-width: calc((218px * 4) + (20px * 4));
+  margin: 20px auto;
+
+  > * {
+    margin: auto;
+  }
+}

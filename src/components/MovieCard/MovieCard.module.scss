@@ -1,6 +1,7 @@
 .card{
   cursor: pointer;
   height: 400px;
+  width: 218px;
 }
 
 img{
@@ -8,10 +9,10 @@ img{
 }
 
 .content{
-  padding: 1vw;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 1vw;
+  gap: 5px;
 
   &__info{
     display: flex;

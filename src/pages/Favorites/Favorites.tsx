@@ -1,8 +1,9 @@
-import { CardGrid, Group, Header } from '@vkontakte/vkui';
+import { Group, Header } from '@vkontakte/vkui';
 import { observer } from 'mobx-react-lite';
 import { useContext } from 'react';
-import { MovieCard } from '../components/MovieCard/MovieCard';
-import { StoreContext } from '../stores/RootStore';
+import { MovieCard } from '../../components/MovieCard/MovieCard';
+import { StoreContext } from '../../stores/RootStore';
+import styles from './Favorites.module.scss';
 
 export const Favorites = observer(() => {
   const store = useContext(StoreContext);
@@ -11,7 +12,7 @@ export const Favorites = observer(() => {
 
   return (
     <Group header={<Header size="xl">Понравившиеся</Header>}>
-      <CardGrid>
+      <div className={styles['movies-grid']}>
         {favorites ? (
           favorites.map((movie) => (
             <MovieCard
@@ -27,7 +28,7 @@ export const Favorites = observer(() => {
         ) : (
           <p>Понравившихся фильмов нет</p>
         )}
-      </CardGrid>
+      </div>
     </Group>
   );
 });

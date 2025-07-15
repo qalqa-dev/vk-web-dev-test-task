@@ -1,9 +1,11 @@
-import { CardGrid, Group, Header, Skeleton } from '@vkontakte/vkui';
+import { Group, Header, Skeleton } from '@vkontakte/vkui';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useContext, useEffect } from 'react';
-import { Filter } from '../components/Filter/Filter';
-import { MovieCard } from '../components/MovieCard/MovieCard';
-import { StoreContext } from '../stores/RootStore';
+import { Filter } from '../../components/Filter/Filter';
+import { MovieCard } from '../../components/MovieCard/MovieCard';
+import { StoreContext } from '../../stores/RootStore';
+
+import styles from './Main.module.scss';
 
 export const Main = observer(() => {
   const store = useContext(StoreContext);
@@ -32,7 +34,7 @@ export const Main = observer(() => {
   return (
     <Group header={<Header size="xl">Главная</Header>}>
       <Filter />
-      <CardGrid>
+      <div className={styles['movies-grid']}>
         {movies.map((movie) => (
           <MovieCard
             key={movie.id}
@@ -44,13 +46,13 @@ export const Main = observer(() => {
             rating={movie.rating}
           />
         ))}
-      </CardGrid>
+      </div>
       {store.loading && (
-        <CardGrid size="s">
+        <div className={styles['movies-grid']}>
           {Array.from({ length: 10 }).map((_, i) => (
             <Skeleton key={i} height="400px" width="100%" />
           ))}
-        </CardGrid>
+        </div>
       )}
     </Group>
   );

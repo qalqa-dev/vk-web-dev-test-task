@@ -10,9 +10,9 @@ import {
 import '@vkontakte/vkui/dist/vkui.css';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Navbar } from './components/Navbar/Navbar';
-import { Favorites } from './pages/Favorites';
-import { Main } from './pages/Main';
-import { MovieDetails } from './pages/MovieDetails';
+import { Favorites } from './pages/Favorites/Favorites';
+import { Main } from './pages/Main/Main';
+import { MovieDetails } from './pages/MovieDetails/MovieDetails';
 
 const App = () => {
   const platform = usePlatform();

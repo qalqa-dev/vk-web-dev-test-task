@@ -152,7 +152,7 @@ class RootStore {
 
     try {
       this.loading = true;
-      const movies = yield Api.get(`v1.4/movie/search?${queryParams}`);
+      const movies = yield Api.get(`v1.4/movie?${queryParams}`);
 
       runInAction(() => {
         if (this.page === 1) {
