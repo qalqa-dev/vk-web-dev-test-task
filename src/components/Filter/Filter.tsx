@@ -8,12 +8,14 @@ import {
   ToolButton,
 } from '@vkontakte/vkui';
 import clsx from 'clsx';
+import { observer } from 'mobx-react-lite';
 import { useContext, useEffect, useState } from 'react';
 import { StoreContext } from '../../stores/RootStore';
+import type { Genre } from '../../types/Response';
 import { SearchMovies } from '../SearchMovies/SearchMovies';
 import styles from './Filter.module.scss';
 
-export const Filter = () => {
+export const Filter = observer(() => {
   const store = useContext(StoreContext);
 
   const ratingRangeConst = [0, 10];
@@ -35,10 +37,13 @@ export const Filter = () => {
     end: yearRangeConst[1],
   });
 
+  const [selectedGenres, setSelectedGenres] = useState<Genre[]>([]);
+
   useEffect(() => {
     store.setRating(ratingRange);
     store.setYear(yearRange);
-  }, [ratingRange, store, yearRange]);
+    store.setGenres(selectedGenres);
+  }, [ratingRange, store, yearRange, selectedGenres]);
 
   const [isExpanded, setIsExpanded] = useState(false);
   return (
@@ -105,22 +110,42 @@ export const Filter = () => {
             }
           />
         </FormItem>
-        <FormItem top="Выберите жанры" className={styles.chips}>
-          <ChipsSelect
-            id="groups"
-            options={store.filters.genres?.map((genre) => ({
-              label: genre.name,
-              name: genre.slug,
-            }))}
-            placeholder="Не выбраны"
-            emptyText="Совсем ничего не найдено"
-            selectedBehavior="hide"
-            closeAfterSelect={false}
-            allowClearButton={true}
-            onChange={store.setGenres}
-          />
-        </FormItem>
+        <div>Выбранные жанры{selectedGenres.map((e) => e.name)}</div>
+        {store.availableGenres ? (
+          <FormItem top="Выберите жанры" className={styles.chips}>
+            <ChipsSelect
+              id="groups"
+              options={store.availableGenres.map((e) => ({
+                value: e.slug,
+                label: e.name,
+              }))}
+              placeholder="Не выбраны"
+              emptyText="Совсем ничего не найдено"
+              selectedBehavior="hide"
+              closeAfterSelect={false}
+              allowClearButton={true}
+              value={selectedGenres.map((e) => {
+                return {
+                  value: e.slug,
+                  label: e.name,
+                };
+              })}
+              onChange={(e) =>
+                setSelectedGenres(
+                  e.map((e) => {
+                    return {
+                      slug: e.value,
+                      name: e.label,
+                    };
+                  }),
+                )
+              }
+            />
+          </FormItem>
+        ) : (
+          <>Загрузка...</>
+        )}
       </div>
     </>
   );
-};
+});

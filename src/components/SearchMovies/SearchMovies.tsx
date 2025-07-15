@@ -4,7 +4,7 @@ import { useContext, useState } from 'react';
 import { StoreContext } from '../../stores/RootStore';
 
 export const SearchMovies = () => {
-  const { filters, getMoviesWithQuery } = useContext(StoreContext);
+  const store = useContext(StoreContext);
 
   const [inputValue, setInputValue] = useState<string>('');
 
@@ -19,7 +19,7 @@ export const SearchMovies = () => {
           after={
             <IconButton
               onClick={() => {
-                getMoviesWithQuery(inputValue, 1, 10, filters);
+                store.getMoviesWithQuery(inputValue, 1, 10);
               }}
             >
               <Icon24Search />

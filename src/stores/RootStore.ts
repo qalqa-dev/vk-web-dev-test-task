@@ -10,6 +10,7 @@ class RootStore {
   movies: MovieDoc[] = [];
   loading = false;
   filters: FilterType = {};
+  availableGenres: Genre[] = [];
 
   constructor(initialToken: string = '') {
     makeObservable(this, {
@@ -17,8 +18,9 @@ class RootStore {
       movies: observable,
       loading: observable,
       initialized: observable,
-      setApiToken: action,
       filters: observable,
+      availableGenres: observable,
+      setApiToken: action,
       getAllGenres: action,
       getMovies: flow,
       initialize: flow,
@@ -71,26 +73,27 @@ class RootStore {
     this.filters.rating = rating;
   };
 
-  *getMoviesWithQuery(
-    query?: string,
-    page: number = 1,
-    limit: number = 10,
-    filters?: FilterType,
-  ) {
+  clearMovies = () => {
+    this.movies = [];
+  };
+
+  *getMoviesWithQuery(query?: string, page: number = 1, limit: number = 10) {
     try {
       this.loading = true;
       const filterParams = {
-        genres: filters?.genres,
-        year: filters?.year,
-        rating: filters?.rating,
+        genres: this.filters?.genres,
+        year: this.filters?.year,
+        rating: this.filters?.rating,
       };
 
       const queryParams = new URLSearchParams({
-        query: query || '',
+        // query: query || '',
         page: page.toString(),
         limit: limit.toString(),
-        'releaseYears.start': JSON.stringify(filterParams.year?.start),
-        'releaseYears.end': JSON.stringify(filterParams.year?.end),
+        year:
+          JSON.stringify(filterParams.year?.start) +
+          '-' +
+          JSON.stringify(filterParams.year?.end),
         'rating.kp':
           JSON.stringify(filterParams.rating?.start) +
           '-' +
@@ -103,7 +106,7 @@ class RootStore {
         .replace(/%2C/g, ',');
 
       const movies: { docs: MovieDoc[] } = yield Api.get(
-        `v1.4/movie/search?${queryParams}`,
+        `v1.4/movie?${queryParams}`,
       );
 
       this.loading = false;
@@ -121,15 +124,11 @@ class RootStore {
         'v1/movie',
         'genres.name',
       );
-      this.filters.genres = genres;
+      this.availableGenres = genres;
       console.log('Genres loaded:', genres);
     } catch (error) {
       console.error('Error fetching genres:', error);
     }
-  };
-
-  clearMovies = () => {
-    this.movies = [];
   };
 
   initialize = flow(
