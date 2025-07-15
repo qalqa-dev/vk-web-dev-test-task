@@ -4,7 +4,8 @@ import clsx from 'clsx';
 import { Icon24StarsOutline, Icon28StarsOutline } from '@vkontakte/icons';
 import styles from './Rating.module.scss';
 
-export const Rating = ({ rating }: { rating: number }) => {
+export const Rating = ({ rating }: { rating?: number }) => {
+  if (!rating) return null;
   const ratingCondition = {
     [styles['rating--low']]: rating < 5,
     [styles['rating--mid']]: rating >= 5 && rating < 8,

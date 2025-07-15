@@ -1,8 +1,10 @@
 import { Icon20FilterOutline, Icon24Filter } from '@vkontakte/icons';
 import {
+  Button,
   ChipsSelect,
   Div,
   Flex,
+  Footnote,
   FormItem,
   Slider,
   ToolButton,
@@ -110,7 +112,6 @@ export const Filter = observer(() => {
             }
           />
         </FormItem>
-        <div>Выбранные жанры{selectedGenres.map((e) => e.name)}</div>
         {store.availableGenres ? (
           <FormItem top="Выберите жанры" className={styles.chips}>
             <ChipsSelect
@@ -145,6 +146,20 @@ export const Filter = observer(() => {
         ) : (
           <>Загрузка...</>
         )}
+        <Div className={styles.button}>
+          <Button
+            onClick={() => {
+              store.getMoviesWithFilters();
+            }}
+          >
+            Применить фильтры
+          </Button>
+        </Div>
+        <Div>
+          <Footnote>
+            Внимание! Фильтры и поиск не работают одновременно!
+          </Footnote>
+        </Div>
       </div>
     </>
   );

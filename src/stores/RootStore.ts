@@ -5,12 +5,14 @@ import type { Genre, MovieDoc, rangeType } from '../types/Response';
 import type { FilterType } from '../types/RootStore';
 
 class RootStore {
-  initialized = false;
-  apiToken = '';
+  initialized: boolean = false;
+  apiToken: string = '';
   movies: MovieDoc[] = [];
   loading = false;
   filters: FilterType = {};
   availableGenres: Genre[] = [];
+  page: number = 1;
+  limit: number = 10;
 
   constructor(initialToken: string = '') {
     makeObservable(this, {
@@ -20,11 +22,17 @@ class RootStore {
       initialized: observable,
       filters: observable,
       availableGenres: observable,
+      page: observable,
+      limit: observable,
       setApiToken: action,
       getAllGenres: action,
       getMovies: flow,
       initialize: flow,
       getMoviesWithQuery: flow,
+      getMoviesWithFilters: flow,
+      setGenres: action,
+      setYear: action,
+      setRating: action,
     });
 
     if (initialToken) {
@@ -39,7 +47,7 @@ class RootStore {
   *getMovies(): Generator {
     try {
       this.loading = true;
-      const movies = yield Api.get('v1.4/movie');
+      const movies = yield Api.get('v1.4/movie/search');
 
       runInAction(() => {
         this.movies = movies.docs;
@@ -77,8 +85,30 @@ class RootStore {
     this.movies = [];
   };
 
-  *getMoviesWithQuery(query?: string, page: number = 1, limit: number = 10) {
+  *getMoviesWithQuery(query: string) {
     try {
+      this.loading = true;
+      const queryParams = new URLSearchParams({
+        page: this.page.toString(),
+        limit: this.limit.toString(),
+        query,
+      });
+      const movies: { docs: MovieDoc[] } = yield Api.get(
+        `v1.4/movie/search?${queryParams}`,
+      );
+
+      this.loading = false;
+      this.movies = movies.docs;
+      console.log('Movies loaded:', this.movies);
+    } catch (error) {
+      this.loading = false;
+      console.error('Error fetching movies:', error);
+    }
+  }
+
+  *getMoviesWithFilters() {
+    try {
+      console.log('nig');
       this.loading = true;
       const filterParams = {
         genres: this.filters?.genres,
@@ -87,9 +117,8 @@ class RootStore {
       };
 
       const queryParams = new URLSearchParams({
-        // query: query || '',
-        page: page.toString(),
-        limit: limit.toString(),
+        page: this.page.toString(),
+        limit: this.limit.toString(),
         year:
           JSON.stringify(filterParams.year?.start) +
           '-' +

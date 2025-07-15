@@ -19,7 +19,7 @@ export const SearchMovies = () => {
           after={
             <IconButton
               onClick={() => {
-                store.getMoviesWithQuery(inputValue, 1, 10);
+                store.getMoviesWithQuery(inputValue);
               }}
             >
               <Icon24Search />

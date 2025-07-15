@@ -52,7 +52,7 @@ export const MovieCard = ({
             <Headline level="2" className={styles.year}>
               {year}
             </Headline>
-            <Rating rating={Number(rating?.kp?.toFixed(1)) || 0}></Rating>
+            <Rating rating={Number(rating?.kp?.toFixed(1))}></Rating>
           </div>
         </div>
       </Card>
