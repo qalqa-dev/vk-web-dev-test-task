@@ -15,14 +15,14 @@ import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Rating } from '../components/Rating/Rating';
 import { StoreContext } from '../stores/RootStore';
-import type { MovieDoc } from '../types/Response';
+import type { Movie } from '../types/Movie';
 
 export const MovieDetails = observer(() => {
   const { id } = useParams();
 
   const store = useContext(StoreContext);
 
-  const [movie, setMovie] = useState<MovieDoc | null>(null);
+  const [movie, setMovie] = useState<Movie | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -32,6 +32,16 @@ export const MovieDetails = observer(() => {
   }, [id, store]);
 
   if (!movie) return <div>Фильм не найден</div>;
+
+  const [isFavorite] = useState(store.favorites.includes(movie));
+
+  const favoriteButtonHandle = () => {
+    if (isFavorite) {
+      store.removeFromFavorites(movie.id);
+    } else {
+      store.addToFavorites(movie);
+    }
+  };
 
   return (
     <Group style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -61,19 +71,22 @@ export const MovieDetails = observer(() => {
             <Paragraph>
               {movie.genres.map(({ name: label }) => label).join(', ')}
             </Paragraph>
-
-            {/* <Headline>Режиссер</Headline>
-            <Paragraph>{movie.director}</Paragraph>
-
-            <Headline>Композитор</Headline>
-            <Paragraph>{movie.composer}</Paragraph> */}
           </SimpleGrid>
           <div style={{ padding: '10px 0' }}>
             <Paragraph>{movie.description}</Paragraph>
           </div>
-          <ToolButton IconCompact={Icon24Like} IconRegular={Icon28Like}>
-            Добавить в понравившиеся
-          </ToolButton>
+          {
+            <ToolButton
+              onClick={() => favoriteButtonHandle}
+              IconCompact={Icon24Like}
+              IconRegular={Icon28Like}
+              mode={isFavorite ? 'primary' : 'secondary'}
+            >
+              {isFavorite
+                ? 'Удалить из понравившихся'
+                : 'Добавить в понравившиеся'}
+            </ToolButton>
+          }
         </Div>
       </Flex>
     </Group>

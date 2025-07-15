@@ -1,12 +1,13 @@
-export type Movie = {
-  id: number;
-  imgUrl?: string;
-  name: string | null;
-  alternativeName: string | null;
-  year: number;
-  rating: number;
-  composer?: string;
-  director?: string;
-  genres?: string[];
-  description?: string;
-};
+import type { MovieDoc } from './Response';
+
+export type Movie = Pick<
+  MovieDoc,
+  | 'id'
+  | 'name'
+  | 'alternativeName'
+  | 'poster'
+  | 'year'
+  | 'rating'
+  | 'genres'
+  | 'description'
+>;

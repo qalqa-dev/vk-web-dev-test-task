@@ -1,17 +1,18 @@
 import { action, flow, makeObservable, observable, runInAction } from 'mobx';
 import { createContext } from 'react';
 import { Api } from '../api/api';
+import type { Movie } from '../types/Movie';
 import type { Genre, MovieDoc, rangeType } from '../types/Response';
 import type { FilterType } from '../types/RootStore';
 
 class RootStore {
   initialized: boolean = false;
   apiToken: string = '';
-  movies: MovieDoc[] = [];
+  movies: Movie[] = [];
   loading = false;
   filters: FilterType = {};
   availableGenres: Genre[] = [];
-  favoritesIds: number[] = [];
+  favorites: Movie[] = [];
   page: number = 1;
   limit: number = 10;
 
@@ -25,13 +26,14 @@ class RootStore {
       availableGenres: observable,
       page: observable,
       limit: observable,
+      favorites: observable,
 
       setApiToken: action,
       getAllGenres: action,
       setGenres: action,
       setYear: action,
       setRating: action,
-      setFavoritesIds: action,
+      setFavorites: action,
 
       getMovies: flow,
       initialize: flow,
@@ -66,8 +68,16 @@ class RootStore {
     this.movies = [];
   };
 
-  setFavoritesIds = (favoritesIds: number[]) => {
-    this.favoritesIds = favoritesIds;
+  setFavorites = (favorites: Movie[]) => {
+    this.favorites = favorites;
+  };
+
+  addToFavorites = (movie: Movie) => {
+    this.favorites.push(movie);
+  };
+
+  removeFromFavorites = (movieId: number) => {
+    this.favorites = this.favorites.filter((movie) => movie.id !== movieId);
   };
 
   getAllGenres = async () => {
@@ -83,7 +93,7 @@ class RootStore {
     }
   };
 
-  getMovieById(id: number): MovieDoc | null {
+  getMovieById(id: number): Movie | null {
     const currentMovie = this.movies.find((movie) => movie.id === id);
     console.log('Movie loaded from cache:', currentMovie);
     return currentMovie || null;
