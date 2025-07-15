@@ -12,17 +12,21 @@ export const Favorites = observer(() => {
   return (
     <Group header={<Header size="xl">Понравившиеся</Header>}>
       <CardGrid>
-        {favorites.map((movie) => (
-          <MovieCard
-            key={movie.id}
-            id={movie.id}
-            poster={movie.poster}
-            name={movie.name}
-            alternativeName={movie.alternativeName}
-            year={movie.year}
-            rating={movie.rating}
-          />
-        ))}
+        {favorites ? (
+          favorites.map((movie) => (
+            <MovieCard
+              key={movie.id}
+              id={movie.id}
+              poster={movie.poster}
+              name={movie.name}
+              alternativeName={movie.alternativeName}
+              year={movie.year}
+              rating={movie.rating}
+            />
+          ))
+        ) : (
+          <p>Понравившихся фильмов нет</p>
+        )}
       </CardGrid>
     </Group>
   );

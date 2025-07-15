@@ -73,13 +73,39 @@ class RootStore {
   };
 
   addToFavorites = (movie: Movie) => {
-    this.favorites.push(movie);
-    console.log('Favorites updated:', this.favorites);
+    const storedFavorites = localStorage.getItem('favorites');
+    const favorites: Movie[] = storedFavorites
+      ? JSON.parse(storedFavorites)
+      : [];
+
+    if (!favorites.some((fav) => fav.id === movie.id)) {
+      favorites.push(movie);
+
+      this.setFavorites(favorites);
+
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+      console.log('Favorites updated:', favorites);
+    }
   };
 
   removeFromFavorites = (movieId: number) => {
-    this.favorites = this.favorites.filter((movie) => movie.id !== movieId);
-    console.log('Favorites updated:', this.favorites);
+    const storedFavorites = localStorage.getItem('favorites');
+
+    if (storedFavorites) {
+      let favorites: Movie[] = JSON.parse(storedFavorites);
+
+      favorites = favorites.filter((fav) => fav.id !== movieId);
+
+      this.setFavorites(favorites);
+
+      if (favorites.length > 0) {
+        localStorage.setItem('favorites', JSON.stringify(favorites));
+      } else {
+        localStorage.removeItem('favorites');
+      }
+
+      console.log('Favorites updated:', favorites);
+    }
   };
 
   getAllGenres = async () => {
@@ -97,8 +123,9 @@ class RootStore {
 
   getMovieById(id: number): Movie | null {
     const currentMovie = this.movies.find((movie) => movie.id === id);
+    const cachedMovie = this.favorites.find((movie) => movie.id === id);
     console.log('Movie loaded from cache:', currentMovie);
-    return currentMovie || null;
+    return currentMovie || cachedMovie || null;
   }
 
   *getMovies(): Generator {
@@ -214,7 +241,20 @@ class RootStore {
     }
   }
 
-  *getFavorites() {}
+  *getFavorites() {
+    try {
+      this.loading = true;
+      const favorites: string | null = yield localStorage.getItem('favorites');
+      if (favorites) {
+        this.favorites = JSON.parse(favorites);
+      }
+      this.loading = false;
+      console.log('Favorites loaded:', this.favorites);
+    } catch (error) {
+      console.error('Error fetching favorites:', error);
+      this.loading = false;
+    }
+  }
 
   initialize = flow(
     function* (this: RootStore) {
@@ -225,6 +265,8 @@ class RootStore {
           yield this.getMovies();
         }
         yield this.getAllGenres();
+
+        yield this.getFavorites();
 
         this.initialized = true;
       } catch (error) {

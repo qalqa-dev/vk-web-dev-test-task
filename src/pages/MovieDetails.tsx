@@ -19,9 +19,7 @@ import type { Movie } from '../types/Movie';
 
 export const MovieDetails = observer(() => {
   const { id } = useParams();
-
   const store = useContext(StoreContext);
-
   const [movie, setMovie] = useState<Movie | null>(null);
 
   useEffect(() => {
@@ -33,8 +31,10 @@ export const MovieDetails = observer(() => {
 
   if (!movie) return <div>Фильм не найден</div>;
 
+  const isFavorite = store.favorites.some((fav) => fav.id === movie.id);
+
   const favoriteButtonHandle = () => {
-    if (store.favorites.includes(movie)) {
+    if (isFavorite) {
       store.removeFromFavorites(movie.id);
     } else {
       store.addToFavorites(movie);
@@ -57,7 +57,7 @@ export const MovieDetails = observer(() => {
             <DisplayTitle style={{ fontSize: '32px' }} level="1">
               {movie.name || movie.alternativeName}
             </DisplayTitle>
-            <Rating rating={movie.rating.kp} />
+            <Rating rating={Number(movie.rating.kp.toFixed(1))} />
           </Flex>
 
           <Title level="2">О фильме</Title>
@@ -73,18 +73,16 @@ export const MovieDetails = observer(() => {
           <div style={{ padding: '10px 0' }}>
             <Paragraph>{movie.description}</Paragraph>
           </div>
-          {
-            <ToolButton
-              onClick={() => favoriteButtonHandle()}
-              IconCompact={Icon24Like}
-              IconRegular={Icon28Like}
-              mode={store.favorites.includes(movie) ? 'primary' : 'secondary'}
-            >
-              {store.favorites.includes(movie)
-                ? 'Удалить из понравившихся'
-                : 'Добавить в понравившиеся'}
-            </ToolButton>
-          }
+          <ToolButton
+            onClick={favoriteButtonHandle}
+            IconCompact={Icon24Like}
+            IconRegular={Icon28Like}
+            mode={isFavorite ? 'primary' : 'secondary'}
+          >
+            {isFavorite
+              ? 'Удалить из понравившихся'
+              : 'Добавить в понравившиеся'}
+          </ToolButton>
         </Div>
       </Flex>
     </Group>
