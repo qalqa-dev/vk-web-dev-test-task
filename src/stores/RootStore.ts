@@ -74,10 +74,12 @@ class RootStore {
 
   addToFavorites = (movie: Movie) => {
     this.favorites.push(movie);
+    console.log('Favorites updated:', this.favorites);
   };
 
   removeFromFavorites = (movieId: number) => {
     this.favorites = this.favorites.filter((movie) => movie.id !== movieId);
+    console.log('Favorites updated:', this.favorites);
   };
 
   getAllGenres = async () => {

@@ -33,10 +33,8 @@ export const MovieDetails = observer(() => {
 
   if (!movie) return <div>Фильм не найден</div>;
 
-  const [isFavorite] = useState(store.favorites.includes(movie));
-
   const favoriteButtonHandle = () => {
-    if (isFavorite) {
+    if (store.favorites.includes(movie)) {
       store.removeFromFavorites(movie.id);
     } else {
       store.addToFavorites(movie);
@@ -77,12 +75,12 @@ export const MovieDetails = observer(() => {
           </div>
           {
             <ToolButton
-              onClick={() => favoriteButtonHandle}
+              onClick={() => favoriteButtonHandle()}
               IconCompact={Icon24Like}
               IconRegular={Icon28Like}
-              mode={isFavorite ? 'primary' : 'secondary'}
+              mode={store.favorites.includes(movie) ? 'primary' : 'secondary'}
             >
-              {isFavorite
+              {store.favorites.includes(movie)
                 ? 'Удалить из понравившихся'
                 : 'Добавить в понравившиеся'}
             </ToolButton>
