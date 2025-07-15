@@ -11,6 +11,7 @@ class RootStore {
   loading = false;
   filters: FilterType = {};
   availableGenres: Genre[] = [];
+  favoritesIds: number[] = [];
   page: number = 1;
   limit: number = 10;
 
@@ -24,15 +25,19 @@ class RootStore {
       availableGenres: observable,
       page: observable,
       limit: observable,
+
       setApiToken: action,
       getAllGenres: action,
+      setGenres: action,
+      setYear: action,
+      setRating: action,
+      setFavoritesIds: action,
+
       getMovies: flow,
       initialize: flow,
       getMoviesWithQuery: flow,
       getMoviesWithFilters: flow,
-      setGenres: action,
-      setYear: action,
-      setRating: action,
+      getFavorites: flow,
     });
 
     if (initialToken) {
@@ -43,6 +48,46 @@ class RootStore {
   setApiToken = (token: string) => {
     this.apiToken = token;
   };
+
+  setGenres = (genres: Genre[]) => {
+    this.filters.genres = genres;
+    console.log('Filters updated:', this.filters);
+  };
+
+  setYear = (year: rangeType) => {
+    this.filters.year = year;
+  };
+
+  setRating = (rating: rangeType) => {
+    this.filters.rating = rating;
+  };
+
+  clearMovies = () => {
+    this.movies = [];
+  };
+
+  setFavoritesIds = (favoritesIds: number[]) => {
+    this.favoritesIds = favoritesIds;
+  };
+
+  getAllGenres = async () => {
+    try {
+      const genres: Genre[] = await Api.getAllPossibleValuesByField(
+        'v1/movie',
+        'genres.name',
+      );
+      this.availableGenres = genres;
+      console.log('Genres loaded:', genres);
+    } catch (error) {
+      console.error('Error fetching genres:', error);
+    }
+  };
+
+  getMovieById(id: number): MovieDoc | null {
+    const currentMovie = this.movies.find((movie) => movie.id === id);
+    console.log('Movie loaded from cache:', currentMovie);
+    return currentMovie || null;
+  }
 
   *getMovies(): Generator {
     try {
@@ -62,29 +107,6 @@ class RootStore {
     }
   }
 
-  getMovieById(id: number): MovieDoc | null {
-    const currentMovie = this.movies.find((movie) => movie.id === id);
-    console.log('Movie loaded from cache:', currentMovie);
-    return currentMovie || null;
-  }
-
-  setGenres = (genres: Genre[]) => {
-    this.filters.genres = genres;
-    console.log('Filters updated:', this.filters);
-  };
-
-  setYear = (year: rangeType) => {
-    this.filters.year = year;
-  };
-
-  setRating = (rating: rangeType) => {
-    this.filters.rating = rating;
-  };
-
-  clearMovies = () => {
-    this.movies = [];
-  };
-
   *getMoviesWithQuery(query: string) {
     try {
       this.loading = true;
@@ -93,6 +115,13 @@ class RootStore {
         limit: this.limit.toString(),
         query,
       });
+
+      ['id', 'name', 'poster', 'alternativeName', 'description'].forEach(
+        (field) => {
+          queryParams.append('selectFields', field);
+        },
+      );
+
       const movies: { docs: MovieDoc[] } = yield Api.get(
         `v1.4/movie/search?${queryParams}`,
       );
@@ -119,20 +148,46 @@ class RootStore {
       const queryParams = new URLSearchParams({
         page: this.page.toString(),
         limit: this.limit.toString(),
-        year:
-          JSON.stringify(filterParams.year?.start) +
-          '-' +
-          JSON.stringify(filterParams.year?.end),
-        'rating.kp':
-          JSON.stringify(filterParams.rating?.start) +
-          '-' +
-          JSON.stringify(filterParams.rating?.end),
-        ...(filterParams.genres?.length && {
-          'genres.name': filterParams.genres.map((e) => e.name).join(','),
-        }),
-      })
-        .toString()
-        .replace(/%2C/g, ',');
+      });
+
+      if (filterParams.genres) {
+        queryParams.append(
+          'genres.name',
+          filterParams.genres.map((e) => e.name).join(','),
+        );
+      }
+
+      if (filterParams.year) {
+        if (filterParams.year.start && filterParams.year.end) {
+          queryParams.append(
+            'year',
+            filterParams.year.start + '-' + filterParams.year.end,
+          );
+        } else if (filterParams.year.start) {
+          queryParams.append('year', filterParams.year.start.toString());
+        } else if (filterParams.year.end) {
+          queryParams.append('year', filterParams.year.end.toString());
+        }
+      }
+
+      if (filterParams.rating) {
+        if (filterParams.rating.start && filterParams.rating.end) {
+          queryParams.append(
+            'rating.kp',
+            filterParams.rating.start + '-' + filterParams.rating.end,
+          );
+        } else if (filterParams.rating.start) {
+          queryParams.append('rating.kp', filterParams.rating.start.toString());
+        } else if (filterParams.rating.end) {
+          queryParams.append('rating.kp', filterParams.rating.end.toString());
+        }
+      }
+
+      ['id', 'name', 'poster', 'alternativeName', 'description'].forEach(
+        (field) => {
+          queryParams.append('selectFields', field);
+        },
+      );
 
       const movies: { docs: MovieDoc[] } = yield Api.get(
         `v1.4/movie?${queryParams}`,
@@ -147,18 +202,7 @@ class RootStore {
     }
   }
 
-  getAllGenres = async () => {
-    try {
-      const genres: Genre[] = await Api.getAllPossibleValuesByField(
-        'v1/movie',
-        'genres.name',
-      );
-      this.availableGenres = genres;
-      console.log('Genres loaded:', genres);
-    } catch (error) {
-      console.error('Error fetching genres:', error);
-    }
-  };
+  *getFavorites() {}
 
   initialize = flow(
     function* (this: RootStore) {
