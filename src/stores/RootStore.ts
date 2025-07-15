@@ -39,6 +39,7 @@ class RootStore {
       setMovies: action,
       setSearchInputValue: action,
       resetPage: action,
+      getMovieById: action,
 
       getMovies: flow,
       initialize: flow,
@@ -137,12 +138,17 @@ class RootStore {
     }
   };
 
-  getMovieById(id: number): Movie | null {
+  getMovieById = async (id: number): Promise<Movie | null> => {
     const currentMovie = this.movies.find((movie) => movie.id === id);
     const cachedMovie = this.favorites.find((movie) => movie.id === id);
-    console.log('Movie loaded from cache:', currentMovie);
-    return currentMovie || cachedMovie || null;
-  }
+    console.log('cachedMovie', cachedMovie);
+    try {
+      const serverMovie: Movie | null = await Api.getById('v1.4/movie', id);
+      return serverMovie || currentMovie || cachedMovie || null;
+    } catch {
+      return currentMovie || cachedMovie || null;
+    }
+  };
 
   *getMovies(): Generator {
     const queryParams = new URLSearchParams({
@@ -307,12 +313,13 @@ class RootStore {
       if (this.initialized) return;
 
       try {
+        yield this.getFavorites();
+
+        yield this.getAllGenres();
+
         if (this.apiToken) {
           yield this.getMovies();
         }
-        yield this.getAllGenres();
-
-        yield this.getFavorites();
 
         this.initialized = true;
       } catch (error) {

@@ -26,8 +26,7 @@ export const MovieDetails = observer(() => {
 
   useEffect(() => {
     if (id) {
-      const movie = store.getMovieById(+id);
-      setMovie(movie);
+      store.getMovieById(+id).then((data) => setMovie(data));
     }
   }, [id, store]);
 
@@ -56,38 +55,40 @@ export const MovieDetails = observer(() => {
           <NoPoster />
         )}
         <Div>
-          <Flex gap="m">
-            <DisplayTitle style={{ fontSize: '32px' }} level="1">
-              {movie.name || movie.alternativeName}
-            </DisplayTitle>
-            <Rating rating={Number(movie.rating.kp.toFixed(1))} />
+          <Flex direction="column" height={'100%'} gap="m">
+            <Flex gap="m">
+              <DisplayTitle style={{ fontSize: '32px' }} level="1">
+                {movie.name || movie.alternativeName}
+              </DisplayTitle>
+              <Rating rating={Number(movie.rating.kp.toFixed(1))} />
+            </Flex>
+
+            <Title level="2">О фильме</Title>
+            <SimpleGrid columns={2} className={styles.grid}>
+              <Headline>Год выпуска</Headline>
+              <Paragraph>{movie.year}</Paragraph>
+
+              <Headline>Жанр</Headline>
+              <Paragraph>
+                {movie.genres
+                  ? movie.genres.map(({ name: label }) => label).join(', ')
+                  : 'Жанр не определен'}
+              </Paragraph>
+            </SimpleGrid>
+            <div>
+              <Paragraph>{movie.description}</Paragraph>
+            </div>
+            <ToolButton
+              onClick={favoriteButtonHandle}
+              IconCompact={Icon24Like}
+              IconRegular={Icon28Like}
+              mode={isFavorite ? 'primary' : 'secondary'}
+            >
+              {isFavorite
+                ? 'Удалить из понравившихся'
+                : 'Добавить в понравившиеся'}
+            </ToolButton>
           </Flex>
-
-          <Title level="2">О фильме</Title>
-          <SimpleGrid columns={2} margin="auto-block">
-            <Headline>Год выпуска</Headline>
-            <Paragraph>{movie.year}</Paragraph>
-
-            <Headline>Жанр</Headline>
-            <Paragraph>
-              {movie.genres
-                ? movie.genres.map(({ name: label }) => label).join(', ')
-                : 'Жанр не определен'}
-            </Paragraph>
-          </SimpleGrid>
-          <div style={{ padding: '10px 0' }}>
-            <Paragraph>{movie.description}</Paragraph>
-          </div>
-          <ToolButton
-            onClick={favoriteButtonHandle}
-            IconCompact={Icon24Like}
-            IconRegular={Icon28Like}
-            mode={isFavorite ? 'primary' : 'secondary'}
-          >
-            {isFavorite
-              ? 'Удалить из понравившихся'
-              : 'Добавить в понравившиеся'}
-          </ToolButton>
         </Div>
       </div>
     </Group>

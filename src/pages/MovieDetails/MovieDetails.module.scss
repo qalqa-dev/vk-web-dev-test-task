@@ -21,6 +21,11 @@
   height: 318px
 }
 
+.grid{
+  min-width: 300px;
+  
+}
+
 @media (max-width: 767px) {
   .flex{
     flex-direction: column;
