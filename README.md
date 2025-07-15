@@ -1,69 +1,38 @@
-# React + TypeScript + Vite
+# Инструкция по запуску
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Я оставил все нужные переменные окружение в `.env.default`, нужно создать `.env` файл и перенести туда эти переменные.
 
-Currently, two official plugins are available:
+> [!IMPORTANT]
+>
+> В здравом уме я никогда бы в жизни не оставлял в открытом доступе ключи от API или какие-либо другие переменные окружения, но того требует задание
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Каждый ключ дает возможность отправить 200 запросов, они расходуются достаточно быстро, так что возможно придется поменять их в процессе тестирования или создать свой тут
+https://t.me/kinopoiskdev_bot
 
-## Expanding the ESLint configuration
+### Dev-mode
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```sh
+npm i
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```sh
+npm run dev
 ```
+
+### Prod-mode
+
+```sh
+npm install
+```
+
+```sh
+npm run build
+```
+
+```sh
+npm run preview
+```
+
+У обоих режимов запуска есть опция `:host`,чтобы была возможность запустить на устройстве в одной локальной сети, допустим с телефона
+
+Ну или если используется какой-то другой пакетный менеджер то аналогичные скрипты для него.
