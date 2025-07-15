@@ -13,8 +13,9 @@ class RootStore {
   filters: FilterType = {};
   availableGenres: Genre[] = [];
   favorites: Movie[] = [];
+  searchInputValue: string = '';
   page: number = 1;
-  limit: number = 10;
+  limit: number = 12;
 
   constructor(initialToken: string = '') {
     makeObservable(this, {
@@ -27,6 +28,7 @@ class RootStore {
       page: observable,
       limit: observable,
       favorites: observable,
+      searchInputValue: observable,
 
       setApiToken: action,
       getAllGenres: action,
@@ -34,6 +36,9 @@ class RootStore {
       setYear: action,
       setRating: action,
       setFavorites: action,
+      setMovies: action,
+      setSearchInputValue: action,
+      resetPage: action,
 
       getMovies: flow,
       initialize: flow,
@@ -51,9 +56,12 @@ class RootStore {
     this.apiToken = token;
   };
 
+  resetPage = () => {
+    this.page = 1;
+  };
+
   setGenres = (genres: Genre[]) => {
     this.filters.genres = genres;
-    console.log('Filters updated:', this.filters);
   };
 
   setYear = (year: rangeType) => {
@@ -64,12 +72,20 @@ class RootStore {
     this.filters.rating = rating;
   };
 
+  setMovies = (movies: Movie[]) => {
+    this.movies = movies;
+  };
+
   clearMovies = () => {
     this.movies = [];
   };
 
   setFavorites = (favorites: Movie[]) => {
     this.favorites = favorites;
+  };
+
+  setSearchInputValue = (value: string) => {
+    this.searchInputValue = value;
   };
 
   addToFavorites = (movie: Movie) => {
@@ -129,12 +145,21 @@ class RootStore {
   }
 
   *getMovies(): Generator {
+    const queryParams = new URLSearchParams({
+      page: this.page.toString(),
+      limit: this.limit.toString(),
+    });
+
     try {
       this.loading = true;
-      const movies = yield Api.get('v1.4/movie/search');
+      const movies = yield Api.get(`v1.4/movie/search?${queryParams}`);
 
       runInAction(() => {
-        this.movies = movies.docs;
+        if (this.page === 1) {
+          this.setMovies(movies.docs);
+        } else {
+          this.setMovies([...this.movies, ...movies.docs]);
+        }
         this.loading = false;
         console.log('Movies loaded:', this.movies);
       });
@@ -146,37 +171,38 @@ class RootStore {
     }
   }
 
-  *getMoviesWithQuery(query: string) {
+  *getMoviesWithQuery() {
     try {
       this.loading = true;
       const queryParams = new URLSearchParams({
         page: this.page.toString(),
         limit: this.limit.toString(),
-        query,
+        query: this.searchInputValue,
       });
-
-      ['id', 'name', 'poster', 'alternativeName', 'description'].forEach(
-        (field) => {
-          queryParams.append('selectFields', field);
-        },
-      );
 
       const movies: { docs: MovieDoc[] } = yield Api.get(
         `v1.4/movie/search?${queryParams}`,
       );
 
-      this.loading = false;
-      this.movies = movies.docs;
-      console.log('Movies loaded:', this.movies);
+      runInAction(() => {
+        if (this.page === 1) {
+          this.setMovies(movies.docs);
+        } else {
+          this.setMovies([...this.movies, ...movies.docs]);
+        }
+        this.loading = false;
+        console.log('Movies loaded:', this.movies);
+      });
     } catch (error) {
-      this.loading = false;
-      console.error('Error fetching movies:', error);
+      runInAction(() => {
+        this.loading = false;
+        console.error('Error fetching movies:', error);
+      });
     }
   }
 
   *getMoviesWithFilters() {
     try {
-      console.log('nig');
       this.loading = true;
       const filterParams = {
         genres: this.filters?.genres,
@@ -189,7 +215,19 @@ class RootStore {
         limit: this.limit.toString(),
       });
 
-      if (filterParams.genres) {
+      [
+        'id',
+        'name',
+        'alternativeName',
+        'description',
+        'rating',
+        'year',
+        'poster',
+      ].forEach((field) => {
+        queryParams.append('selectFields', field);
+      });
+
+      if (filterParams.genres && filterParams.genres.length > 0) {
         queryParams.append(
           'genres.name',
           filterParams.genres.map((e) => e.name).join(','),
@@ -197,7 +235,10 @@ class RootStore {
       }
 
       if (filterParams.year) {
-        if (filterParams.year.start && filterParams.year.end) {
+        if (
+          (filterParams.year.start || filterParams.year.start === 0) &&
+          filterParams.year.end
+        ) {
           queryParams.append(
             'year',
             filterParams.year.start + '-' + filterParams.year.end,
@@ -210,7 +251,10 @@ class RootStore {
       }
 
       if (filterParams.rating) {
-        if (filterParams.rating.start && filterParams.rating.end) {
+        if (
+          (filterParams.rating.start || filterParams.rating.start === 0) &&
+          filterParams.rating.end
+        ) {
           queryParams.append(
             'rating.kp',
             filterParams.rating.start + '-' + filterParams.rating.end,
@@ -222,22 +266,24 @@ class RootStore {
         }
       }
 
-      ['id', 'name', 'poster', 'alternativeName', 'description'].forEach(
-        (field) => {
-          queryParams.append('selectFields', field);
-        },
-      );
-
       const movies: { docs: MovieDoc[] } = yield Api.get(
         `v1.4/movie?${queryParams}`,
       );
 
-      this.loading = false;
-      this.movies = movies.docs;
-      console.log('Movies loaded:', this.movies);
+      runInAction(() => {
+        if (this.page === 1) {
+          this.setMovies(movies.docs);
+        } else {
+          this.setMovies([...this.movies, ...movies.docs]);
+        }
+        this.loading = false;
+        console.log('Movies loaded:', this.movies);
+      });
     } catch (error) {
-      console.error('Error fetching movies:', error);
-      this.loading = false;
+      runInAction(() => {
+        console.error('Error fetching movies:', error);
+        this.loading = false;
+      });
     }
   }
 

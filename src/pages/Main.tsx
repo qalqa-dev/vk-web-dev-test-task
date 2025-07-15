@@ -1,6 +1,6 @@
-import { CardGrid, Group, Header } from '@vkontakte/vkui';
+import { CardGrid, Group, Header, Skeleton } from '@vkontakte/vkui';
 import { observer } from 'mobx-react-lite';
-import { useContext } from 'react';
+import { useCallback, useContext, useEffect } from 'react';
 import { Filter } from '../components/Filter/Filter';
 import { MovieCard } from '../components/MovieCard/MovieCard';
 import { StoreContext } from '../stores/RootStore';
@@ -9,6 +9,25 @@ export const Main = observer(() => {
   const store = useContext(StoreContext);
 
   const movies = store.movies;
+
+  const handleScroll = useCallback(() => {
+    const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
+    if (scrollTop + clientHeight >= scrollHeight - 100 && !store.loading) {
+      store.page += 1;
+      if (store.filters.genres || store.filters.year || store.filters.rating) {
+        store.getMoviesWithFilters();
+      } else if (store.searchInputValue) {
+        store.getMoviesWithQuery();
+      } else {
+        store.getMovies();
+      }
+    }
+  }, [store]);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   return (
     <Group header={<Header size="xl">Главная</Header>}>
@@ -26,6 +45,13 @@ export const Main = observer(() => {
           />
         ))}
       </CardGrid>
+      {store.loading && (
+        <CardGrid size="s">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <Skeleton key={i} height="400px" width="100%" />
+          ))}
+        </CardGrid>
+      )}
     </Group>
   );
 });

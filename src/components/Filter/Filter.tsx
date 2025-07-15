@@ -41,6 +41,11 @@ export const Filter = observer(() => {
 
   const [selectedGenres, setSelectedGenres] = useState<Genre[]>([]);
 
+  const handleFilters = () => {
+    store.resetPage();
+    store.getMoviesWithFilters();
+  };
+
   useEffect(() => {
     store.setRating(ratingRange);
     store.setYear(yearRange);
@@ -147,13 +152,7 @@ export const Filter = observer(() => {
           <>Загрузка...</>
         )}
         <Div className={styles.button}>
-          <Button
-            onClick={() => {
-              store.getMoviesWithFilters();
-            }}
-          >
-            Применить фильтры
-          </Button>
+          <Button onClick={handleFilters}>Применить фильтры</Button>
         </Div>
         <Div>
           <Footnote>

@@ -1,33 +1,53 @@
 import { Icon24Search } from '@vkontakte/icons';
 import { FormItem, IconButton, Input } from '@vkontakte/vkui';
-import { useContext, useState } from 'react';
+import { observer } from 'mobx-react-lite';
+import { useCallback, useContext } from 'react';
 import { StoreContext } from '../../stores/RootStore';
 
-export const SearchMovies = () => {
+export const SearchMovies = observer(() => {
   const store = useContext(StoreContext);
 
-  const [inputValue, setInputValue] = useState<string>('');
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      store.setSearchInputValue(e.target.value);
+    },
+    [store],
+  );
+
+  const handleSearch = useCallback(() => {
+    store.resetPage();
+    store.getMoviesWithQuery();
+  }, [store]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        handleSearch();
+      }
+    },
+    [handleSearch],
+  );
 
   return (
     <>
       <FormItem style={{ flexGrow: 1 }}>
         <Input
-          id="example"
+          id="search-movies-input"
           placeholder="Введите название фильма"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          value={store.searchInputValue || ''}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
           after={
             <IconButton
-              onClick={() => {
-                store.getMoviesWithQuery(inputValue);
-              }}
+              onClick={handleSearch}
+              aria-label="Найти фильмы"
+              hoverMode="opacity"
             >
               <Icon24Search />
             </IconButton>
           }
-          type="text"
         />
       </FormItem>
     </>
   );
-};
+});
